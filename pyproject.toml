@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["args>=0.1.0", "pydantic>=2.10.2"]
 
+[project.scripts]
+lox = "lox.main:main"
+
 [tool.uv]
 dev-dependencies = [
   "mypy",

@@ -135,6 +135,8 @@ class Scanner:
                     self._add_token(TokenType.SLASH)
             case "\n":
                 self._line += 1
+            case '"':
+                self._string()
             case c if c.isspace():
                 pass
             case _:
@@ -147,6 +149,19 @@ class Scanner:
         if self._is_at_end():
             return None
         return self._source[self._current]
+
+    def _string(self) -> None:
+        while self._peek() != '"' and not self._is_at_end():
+            if self._peek() == "\n":
+                self._line += 1
+            self._current += 1
+        if self._is_at_end():
+            self._reporter.error(self._line, "Unterminated string.")
+        self._current += 1
+        self._add_token(
+            TokenType.STRING,
+            self._source[self._start + 1 : self._current - 1],
+        )
 
     def _match(self, expected: str) -> bool:
         if self._is_at_end():

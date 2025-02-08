@@ -60,3 +60,34 @@ def test_scan_tokens_two_char() -> None:
         Token(type_=TokenType.EOF, lexeme="", literal=None, line=1),
     ]
     assert reporter.errors == []
+
+
+def test_scan_tokens_string() -> None:
+    # Assemble
+    lox = '"// this is a comment (( )){} // grouping stuff !*+-/=<> <= == // operators"'
+    reporter = Reporter()
+    scanner = Scanner(reporter, lox)
+    # Act
+    tokens = scanner.scan_tokens()
+    # Assert
+    assert tokens == [
+        Token(
+            type_=TokenType.STRING,
+            lexeme='"// this is a comment (( )){} // grouping stuff !*+-/=<> <= == // operators"',
+            literal="// this is a comment (( )){} // grouping stuff !*+-/=<> <= == // operators",
+            line=1,
+        ),
+        Token(type_=TokenType.EOF, lexeme="", literal=None, line=1),
+    ]
+    assert reporter.errors == []
+
+
+def test_scan_tokens_invalid_string() -> None:
+    # Assemble
+    lox = '"// this is '
+    reporter = Reporter()
+    scanner = Scanner(reporter, lox)
+    # Act
+    _ = scanner.scan_tokens()
+    # Assert
+    assert reporter.errors == [(1, "Unterminated string.")]

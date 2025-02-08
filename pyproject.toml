@@ -8,6 +8,7 @@ dependencies = ["args>=0.1.0", "pydantic>=2.10.2"]
 
 [project.scripts]
 lox = "lox.main:main"
+generate_ast = "tool.generate_ast:main"
 
 [tool.uv]
 dev-dependencies = [
@@ -22,7 +23,7 @@ dev-dependencies = [
 [tool.mypy]
 plugins = ["pydantic.mypy"]
 mypy_path = "src"
-packages = ["lox", "tests"]
+packages = ["lox", "tool", "tests"]
 warn_unused_configs = true
 disallow_any_generics = true
 disallow_any_expr = true

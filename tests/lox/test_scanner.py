@@ -92,30 +92,51 @@ def test_scan_tokens_invalid_string() -> None:
     # Assert
     assert reporter.errors == [(1, "Unterminated string.")]
 
+
 def test_scan_tokens_integer() -> None:
     # Assemble
-    lox = ' 123 '
+    lox = " 123 "
     reporter = Reporter()
     scanner = Scanner(reporter, lox)
     # Act
     tokens = scanner.scan_tokens()
     # Assert
     assert tokens == [
-        Token(type_=TokenType.NUMBER, lexeme='123', literal=123, line=1),
+        Token(type_=TokenType.NUMBER, lexeme="123", literal=123, line=1),
         Token(type_=TokenType.EOF, lexeme="", literal=None, line=1),
     ]
     assert reporter.errors == []
 
+
 def test_scan_tokens_float() -> None:
     # Assemble
-    lox = ' 123.4 '
+    lox = " 123.4 "
     reporter = Reporter()
     scanner = Scanner(reporter, lox)
     # Act
     tokens = scanner.scan_tokens()
     # Assert
     assert tokens == [
-        Token(type_=TokenType.NUMBER, lexeme='123.4', literal=123.4, line=1),
+        Token(type_=TokenType.NUMBER, lexeme="123.4", literal=123.4, line=1),
+        Token(type_=TokenType.EOF, lexeme="", literal=None, line=1),
+    ]
+    assert reporter.errors == []
+
+
+def test_scan_tokens_identifiers() -> None:
+    # Assemble
+    lox = " and class or abc nil "
+    reporter = Reporter()
+    scanner = Scanner(reporter, lox)
+    # Act
+    tokens = scanner.scan_tokens()
+    # Assert
+    assert tokens == [
+        Token(type_=TokenType.AND, lexeme="and", literal="and", line=1),
+        Token(type_=TokenType.CLASS, lexeme="class", literal="class", line=1),
+        Token(type_=TokenType.OR, lexeme="or", literal="or", line=1),
+        Token(type_=TokenType.IDENTIFIER, lexeme="abc", literal="abc", line=1),
+        Token(type_=TokenType.NIL, lexeme="nil", literal="nil", line=1),
         Token(type_=TokenType.EOF, lexeme="", literal=None, line=1),
     ]
     assert reporter.errors == []

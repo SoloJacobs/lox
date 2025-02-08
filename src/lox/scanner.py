@@ -72,6 +72,16 @@ def _is_digit(char: str | None) -> bool:
     return "0" <= char <= "9"
 
 
+def _is_alpha(char: str | None) -> bool:
+    if char is None:
+        return False
+    return "a" <= char <= "z" or "A" <= char <= "Z" or char == "_"
+
+
+def _is_alpha_numeric(char: str | None) -> bool:
+    return _is_alpha(char) or _is_digit(char)
+
+
 class Scanner:
     def __init__(self, reporter: ErrorReporter, source: str) -> None:
         self._source = source
@@ -145,13 +155,42 @@ class Scanner:
                 self._string()
             case c if c.isspace():
                 pass
-            case c if "0" <= c <= "9":
+            case c if _is_digit(c):
                 self._number()
+            case c if _is_alpha(c):
+                self._identifier()
             case _:
                 self._reporter.error(self._line, "Unexpected character.")
 
     def _is_at_end(self) -> bool:
         return self._current >= len(self._source)
+
+    def _identifier(self) -> None:
+        while _is_alpha_numeric(self._peek()):
+            self._advance()
+        keyword_map = {
+            "and": TokenType.AND,
+            "class": TokenType.CLASS,
+            "else": TokenType.ELSE,
+            "false": TokenType.FALSE,
+            "for": TokenType.FOR,
+            "fun": TokenType.FUN,
+            "if": TokenType.IF,
+            "nil": TokenType.NIL,
+            "or": TokenType.OR,
+            "print": TokenType.PRINT,
+            "return": TokenType.RETURN,
+            "super": TokenType.SUPER,
+            "this": TokenType.THIS,
+            "true": TokenType.TRUE,
+            "var": TokenType.VAR,
+            "while": TokenType.WHILE,
+        }
+        lexeme = self._source[self._start : self._current]
+        self._add_token(
+            keyword_map.get(lexeme, TokenType.IDENTIFIER),
+            lexeme,
+        )
 
     def _number(self) -> None:
         while _is_digit(self._peek()):

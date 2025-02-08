@@ -1,7 +1,7 @@
 import enum
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import override
+from typing import Protocol, override
 
 
 class TokenType(enum.Enum):
@@ -62,15 +62,20 @@ class Token:
         return f"{self.type_.name} {self.lexeme} {self.literal}"
 
 
+class ErrorReporter(Protocol):
+    def error(self, line: int, message: str) -> None: ...
+
+
 class Scanner:
-    def __init__(self, source: str) -> None:
+    def __init__(self, reporter: ErrorReporter, source: str) -> None:
         self._source = source
+        self._reporter = reporter
         self._start = 0
         self._current = 0
         self._line = 1
         self._tokens: list[Token] = []
 
-    def scan_tokens(self, source: str) -> Sequence[Token]:
+    def scan_tokens(self) -> Sequence[Token]:
         while not self._is_at_end():
             self._start = self._current
             self._scan_token()
@@ -85,7 +90,83 @@ class Scanner:
         return self._tokens
 
     def _scan_token(self) -> None:
-        raise NotImplementedError()
+        match self._advance():
+            case "(":
+                self._add_token(TokenType.LEFT_PAREN)
+            case ")":
+                self._add_token(TokenType.RIGHT_PAREN)
+            case "{":
+                self._add_token(TokenType.LEFT_BRACE)
+            case "}":
+                self._add_token(TokenType.RIGHT_BRACE)
+            case ",":
+                self._add_token(TokenType.COMMA)
+            case ".":
+                self._add_token(TokenType.DOT)
+            case "-":
+                self._add_token(TokenType.MINUS)
+            case "+":
+                self._add_token(TokenType.PLUS)
+            case ";":
+                self._add_token(TokenType.SEMICOLON)
+            case "*":
+                self._add_token(TokenType.STAR)
+            case "!":
+                self._add_token(
+                    TokenType.BANG_EQUAL if self._match("=") else TokenType.BANG
+                )
+            case "=":
+                self._add_token(
+                    TokenType.EQUAL_EQUAL if self._match("=") else TokenType.EQUAL
+                )
+            case "<":
+                self._add_token(
+                    TokenType.LESS_EQUAL if self._match("=") else TokenType.LESS
+                )
+            case ">":
+                self._add_token(
+                    TokenType.GREATER_EQUAL if self._match("=") else TokenType.GREATER
+                )
+            case "/":
+                if self._match("/"):
+                    while self._peek() != "\n" and not self._is_at_end():
+                        self._advance()
+                else:
+                    self._add_token(TokenType.SLASH)
+            case "\n":
+                self._line += 1
+            case c if c.isspace():
+                pass
+            case _:
+                self._reporter.error(self._line, "Unexpected character.")
 
     def _is_at_end(self) -> bool:
         return self._current >= len(self._source)
+
+    def _peek(self) -> str | None:
+        if self._is_at_end():
+            return None
+        return self._source[self._current]
+
+    def _match(self, expected: str) -> bool:
+        if self._is_at_end():
+            return False
+        if self._source[self._current] != expected:
+            return False
+        self._current += 1
+        return True
+
+    def _advance(self) -> str:
+        char = self._source[self._current]
+        self._current += 1
+        return char
+
+    def _add_token(self, type_: TokenType, literal: object = None) -> None:
+        self._tokens.append(
+            Token(
+                type_=type_,
+                lexeme=self._source[self._start : self._current],
+                literal=literal,
+                line=self._line,
+            )
+        )

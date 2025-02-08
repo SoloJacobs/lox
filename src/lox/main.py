@@ -31,8 +31,8 @@ class Lox:
         self.had_error = True
 
     def _run(self, source: str) -> None:
-        scanner = Scanner(source)
-        tokens = scanner.scan_tokens(source)
+        scanner = Scanner(self, source)  # Ugh
+        tokens = scanner.scan_tokens()
         for token in tokens:
             print(token)
 

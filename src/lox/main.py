@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from lox.scanner import scan_tokens
+from lox.scanner import Scanner
 
 
 class Args(BaseModel):
@@ -31,7 +31,8 @@ class Lox:
         self.had_error = True
 
     def _run(self, source: str) -> None:
-        tokens = scan_tokens(source)
+        scanner = Scanner(source)
+        tokens = scanner.scan_tokens(source)
         for token in tokens:
             print(token)
 

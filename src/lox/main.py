@@ -5,6 +5,8 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from lox.scanner import scan_tokens
+
 
 class Args(BaseModel):
     path: Path | None = None
@@ -17,12 +19,25 @@ def parse_arguments(args: Sequence[str]) -> Args:
     return Args.model_validate(vars(parser.parse_args(args)))  # type: ignore[misc]
 
 
+def run(source: str) -> None:
+    tokens = scan_tokens(source)
+    for token in tokens:
+        print(token)
+
+
 def run_file(path: Path) -> None:
-    pass
+    source = path.read_text()
+    run(source)
 
 
 def run_prompt() -> None:
-    pass
+    while True:
+        try:
+            line = input("> ")
+        except EOFError:
+            print()
+            break
+        run(line)
 
 
 def main() -> None:

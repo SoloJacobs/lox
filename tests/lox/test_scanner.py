@@ -91,3 +91,31 @@ def test_scan_tokens_invalid_string() -> None:
     _ = scanner.scan_tokens()
     # Assert
     assert reporter.errors == [(1, "Unterminated string.")]
+
+def test_scan_tokens_integer() -> None:
+    # Assemble
+    lox = ' 123 '
+    reporter = Reporter()
+    scanner = Scanner(reporter, lox)
+    # Act
+    tokens = scanner.scan_tokens()
+    # Assert
+    assert tokens == [
+        Token(type_=TokenType.NUMBER, lexeme='123', literal=123, line=1),
+        Token(type_=TokenType.EOF, lexeme="", literal=None, line=1),
+    ]
+    assert reporter.errors == []
+
+def test_scan_tokens_float() -> None:
+    # Assemble
+    lox = ' 123.4 '
+    reporter = Reporter()
+    scanner = Scanner(reporter, lox)
+    # Act
+    tokens = scanner.scan_tokens()
+    # Assert
+    assert tokens == [
+        Token(type_=TokenType.NUMBER, lexeme='123.4', literal=123.4, line=1),
+        Token(type_=TokenType.EOF, lexeme="", literal=None, line=1),
+    ]
+    assert reporter.errors == []

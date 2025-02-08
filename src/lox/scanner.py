@@ -66,6 +66,12 @@ class ErrorReporter(Protocol):
     def error(self, line: int, message: str) -> None: ...
 
 
+def _is_digit(char: str | None) -> bool:
+    if char is None:
+        return False
+    return "0" <= char <= "9"
+
+
 class Scanner:
     def __init__(self, reporter: ErrorReporter, source: str) -> None:
         self._source = source
@@ -139,11 +145,30 @@ class Scanner:
                 self._string()
             case c if c.isspace():
                 pass
+            case c if "0" <= c <= "9":
+                self._number()
             case _:
                 self._reporter.error(self._line, "Unexpected character.")
 
     def _is_at_end(self) -> bool:
         return self._current >= len(self._source)
+
+    def _number(self) -> None:
+        while _is_digit(self._peek()):
+            self._advance()
+        if self._peek() == "." and _is_digit(self._peek_next()):
+            self._advance()
+            while _is_digit(self._peek()):
+                self._advance()
+        self._add_token(
+            type_=TokenType.NUMBER,
+            literal=float(self._source[self._start : self._current]),
+        )
+
+    def _peek_next(self) -> str | None:
+        if self._current + 1 >= len(self._source):
+            return None
+        return self._source[self._current + 1]
 
     def _peek(self) -> str | None:
         if self._is_at_end():

@@ -5,8 +5,9 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from lox.ast_printer import AstPrinter
+from lox.interpret import Interpreter
 from lox.parser import Parser
+from lox.runtime_error import LoxRuntimeErr
 from lox.scanner import Scanner, Token, TokenType
 
 
@@ -24,6 +25,8 @@ def parse_arguments(args: Sequence[str]) -> Args:
 class Lox:
     def __init__(self) -> None:
         self.had_error = False
+        self.had_runtime_error = False
+        self._interpreter = Interpreter()
 
     def error(self, line: int, message: str) -> None:
         self._report(line, "", message)
@@ -33,6 +36,11 @@ class Lox:
             self._report(token.line, " at end", message)
         else:
             self._report(token.line, f" at '{token.lexeme}'", message)
+
+    def runtime_error(self, err: LoxRuntimeErr) -> None:
+        self.had_runtime_error = True
+        print(err.message, file=sys.stderr)
+        print(f"[line {err.token.line}]", file=sys.stderr)
 
     def _report(self, line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)
@@ -46,13 +54,15 @@ class Lox:
         ast = Parser(self, tokens).parse()
         if ast is None:
             return
-        print(AstPrinter().print(ast))
+        self._interpreter.interpret(self, ast)
 
     def run_file(self, path: Path) -> None:
         source = path.read_text()
         self._run(source)
         if self.had_error:
             sys.exit(65)
+        if self.had_runtime_error:
+            sys.exit(70)
 
     def run_prompt(self) -> None:
         while True:

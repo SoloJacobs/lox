@@ -5,7 +5,9 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from lox.scanner import Scanner
+from lox.ast_printer import AstPrinter
+from lox.parser import Parser
+from lox.scanner import Scanner, Token, TokenType
 
 
 class Args(BaseModel):
@@ -26,6 +28,12 @@ class Lox:
     def error(self, line: int, message: str) -> None:
         self._report(line, "", message)
 
+    def parser_error(self, token: Token, message: str) -> None:
+        if token.type_ == TokenType.EOF:
+            self._report(token.line, " at end", message)
+        else:
+            self._report(token.line, f" at '{token.lexeme}'", message)
+
     def _report(self, line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)
         self.had_error = True
@@ -33,8 +41,12 @@ class Lox:
     def _run(self, source: str) -> None:
         scanner = Scanner(self, source)  # Ugh
         tokens = scanner.scan_tokens()
-        for token in tokens:
-            print(token)
+        if self.had_error:
+            return
+        ast = Parser(self, tokens).parse()
+        if ast is None:
+            return
+        print(AstPrinter().print(ast))
 
     def run_file(self, path: Path) -> None:
         source = path.read_text()

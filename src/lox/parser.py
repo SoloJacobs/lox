@@ -1,15 +1,22 @@
+from collections.abc import Sequence
+from typing import Protocol
+
 from lox.ast import Binary, Expr, Grouping, Literal, Unary
 from lox.scanner import Token, TokenType
 
 
 class ParserError(Exception):
-    def __init__(self, token: Token, message: str) -> None:
-        self.token = token
-        self.message = message
+    def __init__(self) -> None:
+        pass
+
+
+class ErrorReporter(Protocol):
+    def parser_error(self, token: Token, message: str) -> None: ...
 
 
 class Parser:
-    def __init__(self, tokens: list[Token]) -> None:
+    def __init__(self, reporter: ErrorReporter, tokens: Sequence[Token]) -> None:
+        self._reporter = reporter
         self._tokens = tokens
         self._current = 0
 
@@ -75,10 +82,10 @@ class Parser:
                 if self.peek() == TokenType.RIGHT_PAREN:
                     self.consume()
                     return Grouping(expr)
-                raise ParserError(
+                raise self._error(
                     self.consume(), message="Expect ')' after expression."
                 )
-        raise ParserError(self.consume(), message="Expected?")
+        raise self._error(self.consume(), "Expected expression.")
 
     def peek(self) -> TokenType:
         return self._tokens[self._current].type_
@@ -86,3 +93,13 @@ class Parser:
     def consume(self) -> Token:
         self._current += 1
         return self._tokens[self._current - 1]
+
+    def _error(self, token: Token, message: str) -> ParserError:
+        self._reporter.parser_error(token, message)
+        return ParserError()
+
+    def parse(self) -> Expr | None:
+        try:
+            return self.expression()
+        except ParserError:
+            return None

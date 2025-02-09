@@ -103,3 +103,21 @@ class Parser:
             return self.expression()
         except ParserError:
             return None
+
+    def _synchronize(self) -> None:
+        while self.peek() != TokenType.EOF:
+            if self.peek() == TokenType.SEMICOLON:
+                self.consume()
+                return
+            if self.peek() in (
+                TokenType.CLASS,
+                TokenType.FOR,
+                TokenType.FUN,
+                TokenType.IF,
+                TokenType.PRINT,
+                TokenType.RETURN,
+                TokenType.VAR,
+                TokenType.WHILE,
+            ):
+                return
+            self.consume()

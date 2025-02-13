@@ -1,14 +1,7 @@
-* check why ruff rejected dead code, eventhough it was alive:
-```python
-    ast = Parser(self, tokens).parse()
-    if self.had_error:
-        return
-```
 * add test cases to verify the AST works as expected.
 * remove the `Lox` class again.
   - error handling is currently duplicated, once via the return type and once via the error reporter.
 * simplify `src/tool/generate_ast.py`, once the AST is complete.
-* make repo publicly available.
 
 # Challenges
 

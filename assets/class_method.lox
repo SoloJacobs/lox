@@ -1,0 +1,12 @@
+class A {
+  error() {
+    this.err = true;
+  }
+
+  reset() {
+    this.err = false;
+  }
+}
+
+var a = A();
+a.error();

@@ -1,0 +1,11 @@
+class A {
+  init(a, b) {
+    this.sum = a + b;
+  }
+
+  show() {
+    print this.sum;
+  }
+}
+
+A(1, 2).show();

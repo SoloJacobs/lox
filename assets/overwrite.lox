@@ -1,0 +1,13 @@
+class A {
+  init() {
+    print "a";
+  }
+}
+
+class B < A {
+  init() {
+    print "b";
+  }
+}
+
+B();

@@ -1,0 +1,15 @@
+class A {
+  init() {
+    print "A";
+  }
+
+  a() {
+    print "a";
+  }
+}
+
+class B < A {
+}
+
+var b = B();
+b.a();

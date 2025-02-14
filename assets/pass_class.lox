@@ -1,0 +1,12 @@
+class A {
+  init() {
+    print "init";
+  }
+}
+
+fun f(a) {
+  return a();
+}
+
+var a = A;
+f(A);

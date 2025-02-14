@@ -1,0 +1,13 @@
+class A {
+  a() {
+    print "a";
+  }
+}
+
+class B < A {
+  b() {
+    super.a();
+  }
+}
+
+B().b();

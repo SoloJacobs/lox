@@ -1,0 +1,9 @@
+fun f() {
+  var inner = "inner";
+  fun g(outer) {
+    return inner + " and " + outer;
+  }
+  return g;
+}
+
+print f()("outer");

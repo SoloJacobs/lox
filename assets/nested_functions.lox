@@ -1,0 +1,9 @@
+fun f() {
+  fun g(a, b) {
+    return a + b;
+  }
+  return g;
+}
+
+var g = f();
+print g(1, 1);

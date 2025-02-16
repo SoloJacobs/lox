@@ -1,6 +1,14 @@
 from typing import Protocol, final, override
 
-from lox.ast import Binary, Expr, Grouping, Literal, Unary, Visitor
+from lox.ast import (
+    Binary,
+    Expr,
+    Grouping,
+    Literal,
+    Unary,
+    Visitor,
+)
+from lox.render import render
 from lox.runtime_error import LoxRuntimeErr
 from lox.scanner import TokenType
 
@@ -9,14 +17,6 @@ def _check_float(value: object, exception: Exception) -> float:
     if not isinstance(value, float):
         raise exception
     return value
-
-
-def _render(value: object) -> str:
-    if value is None:
-        return "nil"
-    if isinstance(value, float):
-        return str(value).removesuffix(".0")
-    return str(value)
 
 
 class ErrorReporter(Protocol):
@@ -28,7 +28,7 @@ class Interpreter(Visitor[object]):
     def interpret(self, reporter: ErrorReporter, expr: Expr) -> None:
         try:
             value = expr.accept(self)
-            print(_render(value))
+            print(render(value))
         except LoxRuntimeErr as err:
             reporter.runtime_error(err)
 

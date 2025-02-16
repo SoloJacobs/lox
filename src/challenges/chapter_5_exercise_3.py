@@ -1,6 +1,14 @@
 from typing import final, override
 
-from lox.ast import Binary, Expr, Grouping, Literal, Unary, Visitor
+from lox.ast import (
+    Binary,
+    Expr,
+    Grouping,
+    Literal,
+    Unary,
+    Visitor,
+)
+from lox.render import render
 
 
 @final
@@ -20,9 +28,7 @@ class RPN(Visitor[str]):
 
     @override
     def visit_literal_expr(self, expr: Literal) -> str:
-        if expr.value is None:
-            return "nil"
-        return str(expr.value)
+        return render(expr.value)
 
     @override
     def visit_unary_expr(self, expr: Unary) -> str:

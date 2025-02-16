@@ -1,7 +1,18 @@
 from collections.abc import Sequence
 from typing import Protocol
 
-from lox.ast import Binary, Expr, Expression, Grouping, Literal, Print, Stmt, Unary
+from lox.ast import (
+    Binary,
+    Expr,
+    Expression,
+    Grouping,
+    Literal,
+    Print,
+    Stmt,
+    Unary,
+    Var,
+    Variable,
+)
 from lox.scanner import Token, TokenType
 
 
@@ -79,6 +90,8 @@ class Parser:
             case TokenType.NIL:
                 self.consume()
                 return Literal(None)
+            case TokenType.IDENTIFIER:
+                return Variable(self.consume())
             case TokenType.LEFT_PAREN:
                 self.consume()
                 expr = self.expression()
@@ -102,12 +115,27 @@ class Parser:
         return ParserError()
 
     def parse(self) -> Sequence[Expr | Stmt] | None:
+        declarations = []
+        while self.peek() != TokenType.EOF:
+            declaration = self.declaration()
+            if declaration is not None:
+                declarations.append(declaration)
+            else:
+                self.find_errors()
+                return None
+        return declarations
+
+    def find_errors(self) -> None:
+        while self.peek() != TokenType.EOF:
+            self.declaration()
+
+    def declaration(self) -> Expr | Stmt | Var | None:
         try:
-            statements = []
-            while self.peek() != TokenType.EOF:
-                statements.append(self.stmt())
-            return statements
+            if self.peek() == TokenType.VAR:
+                return self.var_stmt()
+            return self.stmt()
         except ParserError:
+            self._synchronize()
             return None
 
     def stmt(self) -> Expr | Stmt:
@@ -132,6 +160,21 @@ class Parser:
             raise self._error(semicolon, message="Expect ';' after value.")
 
         return Print(expression)
+
+    def var_stmt(self) -> Var:
+        var = self.consume()
+        assert var.type_ == TokenType.VAR
+        name = self.consume()
+        initializer: Expr = Literal(None)
+        if self.peek() == TokenType.EQUAL:
+            self.consume()
+            initializer = self.expression()
+        semicolon = self.consume()
+        if semicolon.type_ != TokenType.SEMICOLON:
+            raise self._error(
+                self.consume(), message="Expect ';' after variable declaration.."
+            )
+        return Var(name, initializer)
 
     def _synchronize(self) -> None:
         while self.peek() != TokenType.EOF:

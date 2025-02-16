@@ -28,6 +28,7 @@ def main() -> None:
             "Grouping ; expression: Expr",
             "Literal  ; value: object",
             "Unary    ; operator: Token, right: Expr",
+            "Variable ; name: Token",
         ],
     )
     imports_stmt, definition_stmt = _define_ast(
@@ -35,6 +36,7 @@ def main() -> None:
         [
             "Expression ; expression: Expr",
             "Print      ; expression: Expr",
+            "Var        ; name: Token, initializer: Expr",
         ],
     )
     file_content = "\n".join(

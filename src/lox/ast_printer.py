@@ -6,6 +6,7 @@ from lox.ast import (
     Grouping,
     Literal,
     Unary,
+    Variable,
     VisitorExpr,
 )
 from lox.render import render
@@ -35,3 +36,7 @@ class AstPrinter(VisitorExpr[str]):
     def _parenthesize(self, name: str, *exprs: Expr) -> str:
         exprs_str = " ".join(expr.accept(self) for expr in exprs)
         return f"({name} {exprs_str})"
+
+    @override
+    def visit_variable_expr(self, expr: Variable) -> str:
+        return Variable.name.lexeme

@@ -10,9 +10,12 @@ from lox.ast import (
     Print,
     Stmt,
     Unary,
+    Var,
+    Variable,
     VisitorExpr,
     VisitorStmt,
 )
+from lox.environment import Environment
 from lox.render import render
 from lox.runtime_error import LoxRuntimeErr
 from lox.scanner import TokenType
@@ -24,12 +27,23 @@ def _check_float(value: object, exception: Exception) -> float:
     return value
 
 
+def _is_truthy(value: object) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, bool):
+        return value
+    return True
+
+
 class ErrorReporter(Protocol):
     def runtime_error(self, err: LoxRuntimeErr) -> None: ...
 
 
 @final
 class Interpreter(VisitorExpr[object], VisitorStmt[None]):
+    def __init__(self) -> None:
+        self._environment = Environment()
+
     def interpret(self, reporter: ErrorReporter, stmts: Sequence[Expr | Stmt]) -> None:
         try:
             for stmt in stmts:
@@ -142,11 +156,7 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
                 )
                 return -right_float
             case TokenType.BANG:
-                if right is None:
-                    return True
-                if isinstance(right, bool):
-                    return not right
-                return False
+                return not _is_truthy(right)
         raise NotImplementedError()
 
     @override
@@ -157,3 +167,12 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
     def visit_print_stmt(self, expr: Print) -> None:
         value = expr.expression.accept(self)
         print(render(value))
+
+    @override
+    def visit_var_stmt(self, expr: Var) -> None:
+        initializer = expr.initializer.accept(self)
+        self._environment.define(expr.name.lexeme, initializer)
+
+    @override
+    def visit_variable_expr(self, expr: Variable) -> object:
+        return self._environment.get(expr.name)

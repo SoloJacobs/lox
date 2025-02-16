@@ -6,6 +6,7 @@ from lox.ast import (
     Grouping,
     Literal,
     Unary,
+    Variable,
     VisitorExpr,
 )
 from lox.render import render
@@ -33,3 +34,7 @@ class RPN(VisitorExpr[str]):
     @override
     def visit_unary_expr(self, expr: Unary) -> str:
         return f"{expr.right.accept(self)} {expr.operator.lexeme}"
+
+    @override
+    def visit_variable_expr(self, expr: Variable) -> str:
+        return expr.name.lexeme

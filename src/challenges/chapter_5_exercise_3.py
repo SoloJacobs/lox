@@ -6,13 +6,13 @@ from lox.ast import (
     Grouping,
     Literal,
     Unary,
-    Visitor,
+    VisitorExpr,
 )
 from lox.render import render
 
 
 @final
-class RPN(Visitor[str]):
+class RPN(VisitorExpr[str]):
     def rpn(self, expr: Expr) -> str:
         return expr.accept(self)
 

@@ -6,7 +6,7 @@ from lox.ast import (
     Grouping,
     Literal,
     Unary,
-    Visitor,
+    VisitorExpr,
 )
 from lox.render import render
 from lox.runtime_error import LoxRuntimeErr
@@ -24,7 +24,7 @@ class ErrorReporter(Protocol):
 
 
 @final
-class Interpreter(Visitor[object]):
+class Interpreter(VisitorExpr[object]):
     def interpret(self, reporter: ErrorReporter, expr: Expr) -> None:
         try:
             value = expr.accept(self)

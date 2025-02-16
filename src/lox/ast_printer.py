@@ -6,13 +6,13 @@ from lox.ast import (
     Grouping,
     Literal,
     Unary,
-    Visitor,
+    VisitorExpr,
 )
 from lox.render import render
 
 
 @final
-class AstPrinter(Visitor[str]):
+class AstPrinter(VisitorExpr[str]):
     def print(self, expr: Expr) -> str:
         return expr.accept(self)
 

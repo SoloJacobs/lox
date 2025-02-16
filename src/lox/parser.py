@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Protocol
 
-from lox.ast import Binary, Expr, Grouping, Literal, Unary
+from lox.ast import Binary, Expr, Expression, Grouping, Literal, Print, Stmt, Unary
 from lox.scanner import Token, TokenType
 
 
@@ -101,11 +101,37 @@ class Parser:
         self._reporter.parser_error(token, message)
         return ParserError()
 
-    def parse(self) -> Expr | None:
+    def parse(self) -> Sequence[Expr | Stmt] | None:
         try:
-            return self.expression()
+            statements = []
+            while self.peek() != TokenType.EOF:
+                statements.append(self.stmt())
+            return statements
         except ParserError:
             return None
+
+    def stmt(self) -> Expr | Stmt:
+        if self.peek() == TokenType.PRINT:
+            return self.print_stmt()
+        return self.expr_stmt()
+
+    def expr_stmt(self) -> Expression:
+        expression = self.expression()
+        semicolon = self.consume()
+        if semicolon.type_ != TokenType.SEMICOLON:
+            raise self._error(semicolon, message="Expect ';' after value.")
+
+        return Expression(expression)
+
+    def print_stmt(self) -> Stmt:
+        print_ = self.consume()
+        assert print_.type_ == TokenType.PRINT
+        expression = self.expression()
+        semicolon = self.consume()
+        if semicolon.type_ != TokenType.SEMICOLON:
+            raise self._error(semicolon, message="Expect ';' after value.")
+
+        return Print(expression)
 
     def _synchronize(self) -> None:
         while self.peek() != TokenType.EOF:

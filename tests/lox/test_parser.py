@@ -33,7 +33,7 @@ def test_parse_associative() -> None:
     assert not reporter.errors
     parser = Parser(reporter, tokens)
     # Act
-    expr = parser.parse()
+    expr = parser.expression()
     # Assert
     assert not reporter.parser_errors
     assert expr == Binary(
@@ -55,7 +55,7 @@ def test_parse_precedence_arithmetic() -> None:
     assert not reporter.errors
     parser = Parser(reporter, tokens)
     # Act
-    expr = parser.parse()
+    expr = parser.expression()
     # Assert
     assert not reporter.parser_errors
     assert expr == Binary(
@@ -77,7 +77,7 @@ def test_parse_equal_associativity() -> None:
     assert not reporter.errors
     parser = Parser(reporter, tokens)
     # Act
-    expr = parser.parse()
+    expr = parser.expression()
     # Assert
     assert not reporter.parser_errors
     assert expr == Binary(

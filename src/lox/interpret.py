@@ -1,12 +1,17 @@
+from collections.abc import Sequence
 from typing import Protocol, final, override
 
 from lox.ast import (
     Binary,
     Expr,
+    Expression,
     Grouping,
     Literal,
+    Print,
+    Stmt,
     Unary,
     VisitorExpr,
+    VisitorStmt,
 )
 from lox.render import render
 from lox.runtime_error import LoxRuntimeErr
@@ -24,11 +29,11 @@ class ErrorReporter(Protocol):
 
 
 @final
-class Interpreter(VisitorExpr[object]):
-    def interpret(self, reporter: ErrorReporter, expr: Expr) -> None:
+class Interpreter(VisitorExpr[object], VisitorStmt[None]):
+    def interpret(self, reporter: ErrorReporter, stmts: Sequence[Expr | Stmt]) -> None:
         try:
-            value = expr.accept(self)
-            print(render(value))
+            for stmt in stmts:
+                stmt.accept(self)
         except LoxRuntimeErr as err:
             reporter.runtime_error(err)
 
@@ -143,3 +148,12 @@ class Interpreter(VisitorExpr[object]):
                     return not right
                 return False
         raise NotImplementedError()
+
+    @override
+    def visit_expression_stmt(self, expr: Expression) -> None:
+        _ = expr.expression.accept(self)
+
+    @override
+    def visit_print_stmt(self, expr: Print) -> None:
+        value = expr.expression.accept(self)
+        print(render(value))

@@ -50,10 +50,10 @@ class Lox:
         tokens = scanner.scan_tokens()
         if self.had_error:
             return
-        ast = Parser(self, tokens).parse()
-        if ast is None:
+        statements = Parser(self, tokens).parse()
+        if statements is None:
             return
-        self._interpreter.interpret(self, ast)
+        self._interpreter.interpret(self, statements)
 
     def run_file(self, path: Path) -> None:
         source = path.read_text()

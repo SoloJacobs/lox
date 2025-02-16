@@ -10,10 +10,6 @@
   - define doubly linked list of heap allocated strings.
   - define `find`, `insert`, `delete` and test the implementation.
 
-* chapter 3 challenge 1:
-  - add lox programs to assets.
-  - come up with edge cases not covered by the chapter.
-
 * chapter 4 challenge 4:
   - add C-style `/* ... */` block comments.
   - handle new lines.

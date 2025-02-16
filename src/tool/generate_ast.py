@@ -34,13 +34,13 @@ def main() -> None:
 
 
 def _define_type(base_name: str, class_name: str, fields_str: str) -> str:
-    type_ = f"""class {class_name}({base_name}):
-    def __init__(self, {fields_str}) -> None:
+    type_ = f"""
+@dataclass(frozen = True)
+class {class_name}({base_name}):
 """
     fields = [field.strip() for field in fields_str.split(",")]
     for field in fields:
-        field_name = field.split(": ")[0]
-        type_ += f"        self.{field_name} = {field_name}\n"
+        type_ += f"    {field}\n"
 
     type_ += "    @override\n"
     type_ += '    def accept[T](self, visitor: "Visitor[T]") -> T:\n'
@@ -55,9 +55,11 @@ def _define_ast(
 ) -> None:
     path = output_dir / f"{file_name}.py"  # TODO: remove file_name param?
     definition = f"""
-from lox.scanner import Token
 from abc import ABC, abstractmethod
-from typing import Protocol, override, TypeVar
+from dataclasses import dataclass
+from typing import override, TypeVar
+
+from lox.scanner import Token
 
 T = TypeVar('T')
 

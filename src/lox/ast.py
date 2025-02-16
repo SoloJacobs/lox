@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import TypeVar, override
 
 from lox.scanner import Token
@@ -11,39 +12,39 @@ class Expr(ABC):
     def accept[T](self, visitor: "Visitor[T]") -> T: ...
 
 
+@dataclass(frozen=True)
 class Binary(Expr):
-    def __init__(self, left: Expr, operator: Token, right: Expr) -> None:
-        self.left = left
-        self.operator = operator
-        self.right = right
+    left: Expr
+    operator: Token
+    right: Expr
 
     @override
     def accept[T](self, visitor: "Visitor[T]") -> T:
         return visitor.visit_binary_expr(self)
 
 
+@dataclass(frozen=True)
 class Grouping(Expr):
-    def __init__(self, expression: Expr) -> None:
-        self.expression = expression
+    expression: Expr
 
     @override
     def accept[T](self, visitor: "Visitor[T]") -> T:
         return visitor.visit_grouping_expr(self)
 
 
+@dataclass(frozen=True)
 class Literal(Expr):
-    def __init__(self, value: object) -> None:
-        self.value = value
+    value: object
 
     @override
     def accept[T](self, visitor: "Visitor[T]") -> T:
         return visitor.visit_literal_expr(self)
 
 
+@dataclass(frozen=True)
 class Unary(Expr):
-    def __init__(self, operator: Token, right: Expr) -> None:
-        self.operator = operator
-        self.right = right
+    operator: Token
+    right: Expr
 
     @override
     def accept[T](self, visitor: "Visitor[T]") -> T:

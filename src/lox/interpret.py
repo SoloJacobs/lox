@@ -39,9 +39,9 @@ class Interpreter(Visitor[object]):
         match expr.operator.type_:
             case TokenType.PLUS:
                 if isinstance(right, float) and isinstance(left, float):
-                    return right + left
+                    return left + right
                 if isinstance(right, str) and isinstance(left, str):
-                    return right + left
+                    return left + right
                 raise LoxRuntimeErr(
                     expr.operator, "Operands must be be two numbers or two strings."
                 )
@@ -52,7 +52,7 @@ class Interpreter(Visitor[object]):
                 left_float = _check_float(
                     left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
                 )
-                return right_float - left_float
+                return left_float - right_float
             case TokenType.STAR:
                 right_float = _check_float(
                     right, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
@@ -60,7 +60,7 @@ class Interpreter(Visitor[object]):
                 left_float = _check_float(
                     left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
                 )
-                return right_float * left_float
+                return left_float * right_float
             case TokenType.SLASH:
                 right_float = _check_float(
                     right, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
@@ -68,7 +68,7 @@ class Interpreter(Visitor[object]):
                 left_float = _check_float(
                     left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
                 )
-                return right_float / left_float
+                return left_float / right_float
             case TokenType.GREATER:
                 right_float = _check_float(
                     right, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
@@ -76,7 +76,7 @@ class Interpreter(Visitor[object]):
                 left_float = _check_float(
                     left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
                 )
-                return right_float > left_float
+                return left_float > right_float
             case TokenType.GREATER_EQUAL:
                 right_float = _check_float(
                     right, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
@@ -84,7 +84,7 @@ class Interpreter(Visitor[object]):
                 left_float = _check_float(
                     left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
                 )
-                return right_float >= left_float
+                return left_float >= right_float
             case TokenType.LESS:
                 right_float = _check_float(
                     right, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
@@ -92,7 +92,7 @@ class Interpreter(Visitor[object]):
                 left_float = _check_float(
                     left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
                 )
-                return right_float < left_float
+                return left_float < right_float
             case TokenType.LESS_EQUAL:
                 right_float = _check_float(
                     right, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
@@ -100,7 +100,23 @@ class Interpreter(Visitor[object]):
                 left_float = _check_float(
                     left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
                 )
-                return right_float <= left_float
+                return left_float <= right_float
+            case TokenType.BANG_EQUAL:
+                right_float = _check_float(
+                    right, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
+                )
+                left_float = _check_float(
+                    left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
+                )
+                return left_float != right_float
+            case TokenType.EQUAL_EQUAL:
+                right_float = _check_float(
+                    right, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
+                )
+                left_float = _check_float(
+                    left, LoxRuntimeErr(expr.operator, "Operands must be numbers.")
+                )
+                return left_float == right_float
         raise NotImplementedError()
 
     @override

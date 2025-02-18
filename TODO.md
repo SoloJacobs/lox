@@ -1,4 +1,3 @@
-* add test cases to verify the AST works as expected.
 * remove the `Lox` class again.
   - error handling is currently duplicated, once via the return type and once via the error reporter.
 * simplify `src/tool/generate_ast.py`, once the AST is complete.

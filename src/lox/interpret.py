@@ -105,7 +105,7 @@ class Interpreter(Visitor[object]):
 
     @override
     def visit_grouping_expr(self, expr: Grouping) -> object:
-        return expr.accept(self)
+        return expr.expression.accept(self)
 
     @override
     def visit_literal_expr(self, expr: Literal) -> object:

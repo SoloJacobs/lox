@@ -39,8 +39,7 @@ class Lox:
 
     def runtime_error(self, err: LoxRuntimeErr) -> None:
         self.had_runtime_error = True
-        print(err.message, file=sys.stderr)
-        print(f"[line {err.token.line}]", file=sys.stderr)
+        self._report(err.token.line, "", err.message)
 
     def _report(self, line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)

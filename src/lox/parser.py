@@ -71,10 +71,13 @@ class Parser:
             case TokenType.NUMBER | TokenType.STRING:
                 return Literal(self.consume().literal)
             case TokenType.FALSE:
+                self.consume()
                 return Literal(False)
             case TokenType.TRUE:
+                self.consume()
                 return Literal(True)
             case TokenType.NIL:
+                self.consume()
                 return Literal(None)
             case TokenType.LEFT_PAREN:
                 self.consume()

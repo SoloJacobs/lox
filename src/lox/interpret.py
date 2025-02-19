@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from typing import Protocol, final, override
 
 from lox.ast import (
+    Assign,
     Binary,
     Expr,
     Expression,
@@ -176,3 +177,9 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
     @override
     def visit_variable_expr(self, expr: Variable) -> object:
         return self._environment.get(expr.name)
+
+    @override
+    def visit_assign_expr(self, expr: Assign) -> object:
+        value = expr.value.accept(self)
+        self._environment.assign(expr.name, value)
+        return value

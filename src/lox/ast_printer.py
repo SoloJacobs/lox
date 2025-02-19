@@ -1,6 +1,7 @@
 from typing import final, override
 
 from lox.ast import (
+    Assign,
     Binary,
     Expr,
     Grouping,
@@ -40,3 +41,7 @@ class AstPrinter(VisitorExpr[str]):
     @override
     def visit_variable_expr(self, expr: Variable) -> str:
         return Variable.name.lexeme
+
+    @override
+    def visit_assign_expr(self, expr: Assign) -> str:
+        return self._parenthesize("=", Variable(expr.name), expr.value)

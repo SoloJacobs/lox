@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from typing import Protocol
 
 from lox.ast import (
+    Assign,
     Binary,
     Expr,
     Expression,
@@ -32,7 +33,16 @@ class Parser:
         self._current = 0
 
     def expression(self) -> Expr:
-        return self.equality()
+        return self.assignment()
+
+    def assignment(self) -> Expr:
+        expr = self.equality()
+        if self.peek() == TokenType.EQUAL:
+            equal = self.consume()
+            if isinstance(expr, Variable):
+                return Assign(expr.name, self.expression())
+            self._reporter.parser_error(equal, "Invalid assignment target.")
+        return expr
 
     def equality(self) -> Expr:
         expr = self.comparison()

@@ -1,6 +1,7 @@
 from typing import final, override
 
 from lox.ast import (
+    Assign,
     Binary,
     Expr,
     Grouping,
@@ -38,3 +39,7 @@ class RPN(VisitorExpr[str]):
     @override
     def visit_variable_expr(self, expr: Variable) -> str:
         return expr.name.lexeme
+
+    @override
+    def visit_assign_expr(self, expr: Assign) -> str:
+        return f"{expr.name.lexeme} {expr.value.accept(self)} ="

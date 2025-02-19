@@ -22,6 +22,16 @@ class Binary(Expr):
 
 
 @dataclass(frozen=True)
+class Assign(Expr):
+    name: Token
+    value: Expr
+
+    @override
+    def accept[T](self, visitor: "VisitorExpr[T]") -> T:
+        return visitor.visit_assign_expr(self)
+
+
+@dataclass(frozen=True)
 class Grouping(Expr):
     expression: Expr
 
@@ -61,6 +71,8 @@ class Variable(Expr):
 class VisitorExpr[T](ABC):
     @abstractmethod
     def visit_binary_expr(self, expr: Binary) -> T: ...
+    @abstractmethod
+    def visit_assign_expr(self, expr: Assign) -> T: ...
     @abstractmethod
     def visit_grouping_expr(self, expr: Grouping) -> T: ...
     @abstractmethod

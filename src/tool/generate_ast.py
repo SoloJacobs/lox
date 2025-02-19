@@ -25,6 +25,7 @@ def main() -> None:
         "Expr",
         [
             "Binary   ; left: Expr, operator: Token, right: Expr",
+            "Assign   ; name: Token, value: Expr",
             "Grouping ; expression: Expr",
             "Literal  ; value: object",
             "Unary    ; operator: Token, right: Expr",

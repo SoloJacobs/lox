@@ -18,6 +18,7 @@ from lox.ast import (
     Variable,
     VisitorExpr,
     VisitorStmt,
+    While,
 )
 from lox.environment import Environment
 from lox.render import render
@@ -203,6 +204,11 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
             expr.then_branch.accept(self)
         elif expr.else_branch is not None:
             expr.else_branch.accept(self)
+
+    @override
+    def visit_while_stmt(self, expr: While) -> None:
+        while _is_truthy(expr.condition.accept(self)):
+            expr.body.accept(self)
 
     @override
     def visit_logical_expr(self, expr: Logical) -> object:

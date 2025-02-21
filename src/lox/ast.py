@@ -123,6 +123,16 @@ class If(Stmt):
 
 
 @dataclass(frozen=True)
+class While(Stmt):
+    condition: Expr
+    body: Stmt
+
+    @override
+    def accept[T](self, visitor: "VisitorStmt[T]") -> T:
+        return visitor.visit_while_stmt(self)
+
+
+@dataclass(frozen=True)
 class Block(Stmt):
     statements: Sequence[Stmt]
 
@@ -155,6 +165,8 @@ class VisitorStmt[T](ABC):
     def visit_expression_stmt(self, expr: Expression) -> T: ...
     @abstractmethod
     def visit_if_stmt(self, expr: If) -> T: ...
+    @abstractmethod
+    def visit_while_stmt(self, expr: While) -> T: ...
     @abstractmethod
     def visit_block_stmt(self, expr: Block) -> T: ...
     @abstractmethod

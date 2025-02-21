@@ -16,6 +16,7 @@ from lox.ast import (
     Unary,
     Var,
     Variable,
+    While,
 )
 from lox.scanner import Token, TokenType
 
@@ -172,7 +173,21 @@ class Parser:
             return self.block_stmt()
         if self.peek() == TokenType.IF:
             return self.if_stmt()
+        if self.peek() == TokenType.WHILE:
+            return self.while_stmt()
         return self.expr_stmt()
+
+    def while_stmt(self) -> While:
+        while_ = self.consume()
+        assert while_.type_ == TokenType.WHILE
+        left = self.consume()
+        if left.type_ != TokenType.LEFT_PAREN:
+            raise self._error(left, "Expect '(' after 'while'.")
+        expr = self.expression()
+        right = self.consume()
+        if right.type_ != TokenType.RIGHT_PAREN:
+            raise self._error(right, "Expect ')' after condition.")
+        return While(expr, self.stmt())
 
     def if_stmt(self) -> If:
         if_ = self.consume()

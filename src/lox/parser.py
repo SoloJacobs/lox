@@ -10,6 +10,7 @@ from lox.ast import (
     Grouping,
     If,
     Literal,
+    Logical,
     Print,
     Stmt,
     Unary,
@@ -38,12 +39,26 @@ class Parser:
         return self.assignment()
 
     def assignment(self) -> Expr:
-        expr = self.equality()
+        expr = self.or_()
         if self.peek() == TokenType.EQUAL:
             equal = self.consume()
             if isinstance(expr, Variable):
                 return Assign(expr.name, self.expression())
             self._reporter.parser_error(equal, "Invalid assignment target.")
+        return expr
+
+    def or_(self) -> Expr:
+        expr = self.and_()
+        while self.peek() == TokenType.OR:
+            or_ = self.consume()
+            expr = Logical(expr, or_, self.and_())
+        return expr
+
+    def and_(self) -> Expr:
+        expr = self.equality()
+        while self.peek() == TokenType.AND:
+            and_ = self.consume()
+            expr = Logical(expr, and_, self.equality())
         return expr
 
     def equality(self) -> Expr:

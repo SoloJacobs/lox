@@ -28,6 +28,7 @@ def main() -> None:
             "Assign   ; name: Token, value: Expr",
             "Grouping ; expression: Expr",
             "Literal  ; value: object",
+            "Logical  ; left: Expr, operator: Token, right: Expr",
             "Unary    ; operator: Token, right: Expr",
             "Variable ; name: Token",
         ],

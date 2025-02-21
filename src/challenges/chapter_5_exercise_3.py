@@ -6,6 +6,7 @@ from lox.ast import (
     Expr,
     Grouping,
     Literal,
+    Logical,
     Unary,
     Variable,
     VisitorExpr,
@@ -43,3 +44,9 @@ class RPN(VisitorExpr[str]):
     @override
     def visit_assign_expr(self, expr: Assign) -> str:
         return f"{expr.name.lexeme} {expr.value.accept(self)} ="
+
+    @override
+    def visit_logical_expr(self, expr: Logical) -> str:
+        return (
+            f"{expr.left.accept(self)} {expr.right.accept(self)} {expr.operator.lexeme}"
+        )

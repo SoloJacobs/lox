@@ -10,6 +10,7 @@ from lox.ast import (
     Grouping,
     If,
     Literal,
+    Logical,
     Print,
     Stmt,
     Unary,
@@ -202,3 +203,17 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
             expr.then_branch.accept(self)
         elif expr.else_branch is not None:
             expr.else_branch.accept(self)
+
+    @override
+    def visit_logical_expr(self, expr: Logical) -> object:
+        left = expr.left.accept(self)
+        match expr.operator.type_:
+            case TokenType.AND:
+                if not _is_truthy(left):
+                    return left
+                return expr.right.accept(self)
+            case TokenType.OR:
+                if _is_truthy(left):
+                    return left
+                return expr.right.accept(self)
+        raise NotImplementedError()

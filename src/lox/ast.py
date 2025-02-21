@@ -51,6 +51,17 @@ class Literal(Expr):
 
 
 @dataclass(frozen=True)
+class Logical(Expr):
+    left: Expr
+    operator: Token
+    right: Expr
+
+    @override
+    def accept[T](self, visitor: "VisitorExpr[T]") -> T:
+        return visitor.visit_logical_expr(self)
+
+
+@dataclass(frozen=True)
 class Unary(Expr):
     operator: Token
     right: Expr
@@ -78,6 +89,8 @@ class VisitorExpr[T](ABC):
     def visit_grouping_expr(self, expr: Grouping) -> T: ...
     @abstractmethod
     def visit_literal_expr(self, expr: Literal) -> T: ...
+    @abstractmethod
+    def visit_logical_expr(self, expr: Logical) -> T: ...
     @abstractmethod
     def visit_unary_expr(self, expr: Unary) -> T: ...
     @abstractmethod

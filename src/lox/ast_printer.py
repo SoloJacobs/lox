@@ -6,6 +6,7 @@ from lox.ast import (
     Expr,
     Grouping,
     Literal,
+    Logical,
     Unary,
     Variable,
     VisitorExpr,
@@ -45,3 +46,7 @@ class AstPrinter(VisitorExpr[str]):
     @override
     def visit_assign_expr(self, expr: Assign) -> str:
         return self._parenthesize("=", Variable(expr.name), expr.value)
+
+    @override
+    def visit_logical_expr(self, expr: Logical) -> str:
+        return self._parenthesize(expr.operator.lexeme, expr.left, expr.right)

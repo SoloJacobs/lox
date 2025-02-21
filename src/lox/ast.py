@@ -99,6 +99,17 @@ class Expression(Stmt):
 
 
 @dataclass(frozen=True)
+class If(Stmt):
+    condition: Expr
+    then_branch: Stmt
+    else_branch: Stmt | None
+
+    @override
+    def accept[T](self, visitor: "VisitorStmt[T]") -> T:
+        return visitor.visit_if_stmt(self)
+
+
+@dataclass(frozen=True)
 class Block(Stmt):
     statements: Sequence[Stmt]
 
@@ -129,6 +140,8 @@ class Var(Stmt):
 class VisitorStmt[T](ABC):
     @abstractmethod
     def visit_expression_stmt(self, expr: Expression) -> T: ...
+    @abstractmethod
+    def visit_if_stmt(self, expr: If) -> T: ...
     @abstractmethod
     def visit_block_stmt(self, expr: Block) -> T: ...
     @abstractmethod

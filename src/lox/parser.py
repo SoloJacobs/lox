@@ -8,6 +8,7 @@ from lox.ast import (
     Expr,
     Expression,
     Grouping,
+    If,
     Literal,
     Print,
     Stmt,
@@ -154,7 +155,25 @@ class Parser:
             return self.print_stmt()
         if self.peek() == TokenType.LEFT_BRACE:
             return self.block_stmt()
+        if self.peek() == TokenType.IF:
+            return self.if_stmt()
         return self.expr_stmt()
+
+    def if_stmt(self) -> If:
+        if_ = self.consume()
+        assert if_.type_ == TokenType.IF
+        left = self.consume()
+        if left.type_ != TokenType.LEFT_PAREN:
+            raise self._error(left, "Expect '(' after 'if'.")
+        expr = self.expression()
+        right = self.consume()
+        if right.type_ != TokenType.RIGHT_PAREN:
+            raise self._error(right, "Expect ')' after if condition.")
+        then = self.stmt()
+        if self.peek() == TokenType.ELSE:
+            self.consume()
+            return If(expr, then, self.stmt())
+        return If(expr, then, None)
 
     def block_stmt(self) -> Block:
         bracket = self.consume()

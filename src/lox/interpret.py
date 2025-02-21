@@ -8,6 +8,7 @@ from lox.ast import (
     Expr,
     Expression,
     Grouping,
+    If,
     Literal,
     Print,
     Stmt,
@@ -194,3 +195,10 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
                 statement.accept(self)
         finally:
             self._environment = previous
+
+    @override
+    def visit_if_stmt(self, expr: If) -> None:
+        if expr.condition.accept(self):
+            expr.then_branch.accept(self)
+        elif expr.else_branch is not None:
+            expr.else_branch.accept(self)

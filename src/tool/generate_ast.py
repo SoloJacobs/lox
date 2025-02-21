@@ -36,6 +36,7 @@ def main() -> None:
         "Stmt",
         [
             "Expression ; expression: Expr",
+            "If         ; condition: Expr, then_branch: Stmt, else_branch: Stmt | None",
             "Block      ; statements: Sequence[Stmt]",
             "Print      ; expression: Expr",
             "Var        ; name: Token, initializer: Expr",

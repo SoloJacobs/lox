@@ -66,3 +66,4 @@ LESS_EQUAL = "<="
 
 * Some differences in behaviour of floats.
 * Files are UTF-8 encoded.
+* Scanner will discard C-style comments `/* ... */`.

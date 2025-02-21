@@ -147,6 +147,20 @@ class Scanner:
                 if self._match("/"):
                     while self._peek() != "\n" and not self._is_at_end():
                         self._advance()
+                elif self._match("*"):
+                    while not self._is_at_end():
+                        if self._peek() == "*" and self._peek_next() == "/":
+                            self._advance()
+                            self._advance()
+                            return
+                        if self._peek() == "/" and self._peek_next() == "*":
+                            self._reporter.error(
+                                self._line, "Nested comments disallowed."
+                            )
+                        if self._peek() == "\n":
+                            self._line += 1
+                        self._advance()
+                    self._reporter.error(self._line, "Unterminated comment.")
                 else:
                     self._add_token(TokenType.SLASH)
             case "\n":

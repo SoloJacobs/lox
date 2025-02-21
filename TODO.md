@@ -9,11 +9,6 @@
   - define doubly linked list of heap allocated strings.
   - define `find`, `insert`, `delete` and test the implementation.
 
-* chapter 4 challenge 4:
-  - add C-style `/* ... */` block comments.
-  - handle new lines.
-  - add test case for nesting (but don't necessarily allow it).
-
 * chapter 6 challenge 1:
   C-style blocks allow to add multiple statements, where only one was expected. Analogously, the comma operator allows a series of expressions, where only one was expected (the expection are function call argument lists).
   At runtime the comma operator evaluates the left-hand operand, then evaluates the right operand and returns the latter.

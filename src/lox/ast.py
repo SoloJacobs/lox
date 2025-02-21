@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import override
 
@@ -98,6 +99,15 @@ class Expression(Stmt):
 
 
 @dataclass(frozen=True)
+class Block(Stmt):
+    statements: Sequence[Stmt]
+
+    @override
+    def accept[T](self, visitor: "VisitorStmt[T]") -> T:
+        return visitor.visit_block_stmt(self)
+
+
+@dataclass(frozen=True)
 class Print(Stmt):
     expression: Expr
 
@@ -119,6 +129,8 @@ class Var(Stmt):
 class VisitorStmt[T](ABC):
     @abstractmethod
     def visit_expression_stmt(self, expr: Expression) -> T: ...
+    @abstractmethod
+    def visit_block_stmt(self, expr: Block) -> T: ...
     @abstractmethod
     def visit_print_stmt(self, expr: Print) -> T: ...
     @abstractmethod

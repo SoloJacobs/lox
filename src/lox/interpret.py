@@ -4,6 +4,7 @@ from typing import Protocol, final, override
 from lox.ast import (
     Assign,
     Binary,
+    Block,
     Expr,
     Expression,
     Grouping,
@@ -183,3 +184,13 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
         value = expr.value.accept(self)
         self._environment.assign(expr.name, value)
         return value
+
+    @override
+    def visit_block_stmt(self, expr: Block) -> None:
+        previous = self._environment
+        try:
+            self._environment = Environment(previous)
+            for statement in expr.statements:
+                statement.accept(self)
+        finally:
+            self._environment = previous

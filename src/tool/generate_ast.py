@@ -36,6 +36,7 @@ def main() -> None:
         "Stmt",
         [
             "Expression ; expression: Expr",
+            "Block      ; statements: Sequence[Stmt]",
             "Print      ; expression: Expr",
             "Var        ; name: Token, initializer: Expr",
         ],
@@ -68,6 +69,7 @@ class {class_name}({base_name}):
 def _define_ast(base_name: str, types: Sequence[str]) -> tuple[str, str]:
     imports = """
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import override, TypeVar
 

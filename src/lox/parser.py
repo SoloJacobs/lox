@@ -4,6 +4,7 @@ from typing import Protocol
 from lox.ast import (
     Assign,
     Binary,
+    Block,
     Expr,
     Expression,
     Grouping,
@@ -139,7 +140,7 @@ class Parser:
         while self.peek() != TokenType.EOF:
             self.declaration()
 
-    def declaration(self) -> Expr | Stmt | Var | None:
+    def declaration(self) -> Stmt | None:
         try:
             if self.peek() == TokenType.VAR:
                 return self.var_stmt()
@@ -148,10 +149,24 @@ class Parser:
             self._synchronize()
             return None
 
-    def stmt(self) -> Expr | Stmt:
+    def stmt(self) -> Stmt:
         if self.peek() == TokenType.PRINT:
             return self.print_stmt()
+        if self.peek() == TokenType.LEFT_BRACE:
+            return self.block_stmt()
         return self.expr_stmt()
+
+    def block_stmt(self) -> Block:
+        bracket = self.consume()
+        assert bracket.type_ == TokenType.LEFT_BRACE
+        statements = []
+        while self.peek() not in (TokenType.RIGHT_BRACE, TokenType.EOF):
+            if (statement := self.declaration()) is not None:
+                statements.append(statement)
+        final = self.consume()
+        if final.type_ == TokenType.RIGHT_BRACE:
+            return Block(statements)
+        raise self._error(final, message="Expect '}' after block.")
 
     def expr_stmt(self) -> Expression:
         expression = self.expression()

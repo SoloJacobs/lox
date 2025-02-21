@@ -1,3 +1,5 @@
+import time
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from typing import Protocol, final, override
 
@@ -5,6 +7,7 @@ from lox.ast import (
     Assign,
     Binary,
     Block,
+    Call,
     Expr,
     Expression,
     Grouping,
@@ -47,7 +50,9 @@ class ErrorReporter(Protocol):
 @final
 class Interpreter(VisitorExpr[object], VisitorStmt[None]):
     def __init__(self) -> None:
-        self._environment = Environment()
+        self._globals = Environment()
+        self._environment = self._globals
+        self._globals.define("clock", Clock())
 
     def interpret(self, reporter: ErrorReporter, stmts: Sequence[Expr | Stmt]) -> None:
         try:
@@ -189,6 +194,21 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
         return value
 
     @override
+    def visit_call_expr(self, expr: Call) -> object:
+        # Order of argument evaluation matter! Moreover, we could check whether the callee is
+        # callable before evaluating arguments.
+        callee = expr.callee.accept(self)
+        arguments = [arg.accept(self) for arg in expr.arguments]
+        if not isinstance(callee, LoxCallable):
+            raise LoxRuntimeErr(expr.paren, "Can only call functions and classes.")
+        if callee.arity != len(arguments):
+            raise LoxRuntimeErr(
+                expr.paren,
+                f"Expected {callee.arity} arguments but got {len(arguments)}.",
+            )
+        return callee.call(self, arguments)
+
+    @override
     def visit_block_stmt(self, expr: Block) -> None:
         previous = self._environment
         try:
@@ -223,3 +243,27 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
                     return left
                 return expr.right.accept(self)
         raise NotImplementedError()
+
+
+class LoxCallable(ABC):
+    @property
+    @abstractmethod
+    def arity(self) -> int: ...
+
+    @abstractmethod
+    def call(self, interpreter: Interpreter, arguments: Sequence[object]) -> object: ...
+
+
+class Clock(LoxCallable):
+    @property
+    @override
+    def arity(self) -> int:
+        return 0
+
+    @override
+    def call(self, interpreter: Interpreter, arguments: Sequence[object]) -> object:
+        return time.time()
+
+    @override
+    def __str__(self) -> str:
+        return "<native fun>"

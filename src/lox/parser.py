@@ -5,6 +5,7 @@ from lox.ast import (
     Assign,
     Binary,
     Block,
+    Call,
     Expr,
     Expression,
     Grouping,
@@ -103,7 +104,29 @@ class Parser:
         if self.peek() in (TokenType.MINUS, TokenType.BANG):
             operator = self.consume()
             return Unary(operator, self.unary())
-        return self.primary()
+        return self.call()
+
+    def call(self) -> Expr:
+        expr = self.primary()
+        while self.peek() == TokenType.LEFT_PAREN:
+            expr = self.finish_call(expr)
+        return expr
+
+    def finish_call(self, callee: Expr) -> Call:
+        left = self.consume()
+        assert left.type_ == TokenType.LEFT_PAREN
+        if self.peek() == TokenType.RIGHT_PAREN:
+            return Call(callee, self.consume(), [])
+        arguments = [self.expression()]
+        while self.peek() == TokenType.COMMA:
+            self.consume()
+            arguments.append(self.expression())
+        right = self.consume()
+        if len(arguments) >= 255:
+            self._error(right, "Can't have more than 255 arguments.")
+        if right.type_ != TokenType.RIGHT_PAREN:
+            raise self._error(right, "Expect ')' after arguments.")
+        return Call(callee, right, arguments)
 
     def primary(self) -> Expr:
         match self.peek():

@@ -3,6 +3,7 @@ from typing import final, override
 from lox.ast import (
     Assign,
     Binary,
+    Call,
     Expr,
     Grouping,
     Literal,
@@ -50,3 +51,11 @@ class AstPrinter(VisitorExpr[str]):
     @override
     def visit_logical_expr(self, expr: Logical) -> str:
         return self._parenthesize(expr.operator.lexeme, expr.left, expr.right)
+
+    @override
+    def visit_call_expr(self, expr: Call) -> str:
+        return self._parenthesize(
+            "call",
+            expr.callee,
+            *expr.arguments,
+        )

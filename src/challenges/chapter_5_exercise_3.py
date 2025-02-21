@@ -3,6 +3,7 @@ from typing import final, override
 from lox.ast import (
     Assign,
     Binary,
+    Call,
     Expr,
     Grouping,
     Literal,
@@ -50,3 +51,8 @@ class RPN(VisitorExpr[str]):
         return (
             f"{expr.left.accept(self)} {expr.right.accept(self)} {expr.operator.lexeme}"
         )
+
+    @override
+    def visit_call_expr(self, expr: Call) -> str:
+        arguments = " ".join(arg.accept(self) for arg in expr.arguments)
+        return f"{expr.callee.accept(self)} {arguments} call"

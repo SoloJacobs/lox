@@ -23,6 +23,17 @@ class Binary(Expr):
 
 
 @dataclass(frozen=True)
+class Call(Expr):
+    callee: Expr
+    paren: Token
+    arguments: Sequence[Expr]
+
+    @override
+    def accept[T](self, visitor: "VisitorExpr[T]") -> T:
+        return visitor.visit_call_expr(self)
+
+
+@dataclass(frozen=True)
 class Assign(Expr):
     name: Token
     value: Expr
@@ -83,6 +94,8 @@ class Variable(Expr):
 class VisitorExpr[T](ABC):
     @abstractmethod
     def visit_binary_expr(self, expr: Binary) -> T: ...
+    @abstractmethod
+    def visit_call_expr(self, expr: Call) -> T: ...
     @abstractmethod
     def visit_assign_expr(self, expr: Assign) -> T: ...
     @abstractmethod

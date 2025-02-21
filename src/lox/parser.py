@@ -175,7 +175,43 @@ class Parser:
             return self.if_stmt()
         if self.peek() == TokenType.WHILE:
             return self.while_stmt()
+        if self.peek() == TokenType.FOR:
+            return self.for_stmt()
         return self.expr_stmt()
+
+    def for_stmt(self) -> While | Block:
+        for_ = self.consume()
+        assert for_.type_ == TokenType.FOR
+        left = self.consume()
+        if left.type_ != TokenType.LEFT_PAREN:
+            raise self._error(left, "Expect '(' after 'for'.")
+        if self.peek() == TokenType.SEMICOLON:
+            self.consume()
+            initializer: None | Var | Expression = None
+        elif self.peek() == TokenType.VAR:
+            initializer = self.var_stmt()
+        else:
+            initializer = self.expr_stmt()
+
+        condition = (
+            Literal(True) if self.peek() == TokenType.RIGHT_PAREN else self.expression()
+        )
+        semicolon = self.consume()
+        if semicolon.type_ != TokenType.SEMICOLON:
+            raise self._error(semicolon, "Expected ';' after loop condition.")
+
+        increment = None if self.peek() == TokenType.RIGHT_PAREN else self.expression()
+        right = self.consume()
+        if right.type_ != TokenType.RIGHT_PAREN:
+            raise self._error(right, "Expect ')' after for clauses.")
+
+        body = self.stmt()
+        if increment is not None:
+            body = Block(statements=[body, Expression(increment)])
+        while_ = While(condition, body)
+        if initializer is not None:
+            return Block(statements=[initializer, while_])
+        return while_
 
     def while_stmt(self) -> While:
         while_ = self.consume()

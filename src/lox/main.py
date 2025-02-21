@@ -56,7 +56,7 @@ class Lox:
         self._interpreter.interpret(self, statements)
 
     def run_file(self, path: Path) -> None:
-        source = path.read_text()
+        source = path.read_text("utf-8")
         self._run(source)
         if self.had_error:
             sys.exit(65)

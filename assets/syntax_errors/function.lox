@@ -1,0 +1,6 @@
+// interpreter is not allowed to execute this code, despite the parser returning an AST.
+fun f(a, b) {
+  + a;
+}
+
+print f(2, 2);

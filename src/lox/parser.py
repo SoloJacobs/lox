@@ -8,6 +8,7 @@ from lox.ast import (
     Call,
     Expr,
     Expression,
+    Function,
     Grouping,
     If,
     Literal,
@@ -204,11 +205,40 @@ class Parser:
             return self.block_stmt()
         if self.peek() == TokenType.IF:
             return self.if_stmt()
+        if self.peek() == TokenType.FUN:
+            return self.fun_stmt("function")
         if self.peek() == TokenType.WHILE:
             return self.while_stmt()
         if self.peek() == TokenType.FOR:
             return self.for_stmt()
         return self.expr_stmt()
+
+    def fun_stmt(self, kind: str) -> Function:
+        fun = self.consume()
+        assert fun.type_ == TokenType.FUN
+        name = self.consume()
+        if name.type_ != TokenType.IDENTIFIER:
+            raise self._error(name, f"Expect {kind} name.")
+        left = self.consume()
+        if left.type_ != TokenType.LEFT_PAREN:
+            raise self._error(name, f"Expect '(' after {kind} name.")
+        params = []
+        if self.peek() != TokenType.RIGHT_PAREN:
+            identifier = self.consume()
+            if identifier.type_ != TokenType.IDENTIFIER:
+                raise self._error(name, "Expect parameter name or ')'.")
+            params.append(identifier)
+            while self.peek() == TokenType.COMMA:
+                self.consume()
+                identifier = self.consume()
+                if identifier.type_ != TokenType.IDENTIFIER:
+                    raise self._error(name, "Expect parameter name or ')'.")
+                params.append(identifier)
+        right = self.consume()
+        if right.type_ != TokenType.RIGHT_PAREN:
+            raise self._error(name, "Expect ')' after parameters.")
+        body = self.block_stmt()
+        return Function(name, params, body.statements)
 
     def for_stmt(self) -> While | Block:
         for_ = self.consume()

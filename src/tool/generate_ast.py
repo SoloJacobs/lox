@@ -38,6 +38,7 @@ def main() -> None:
         "Stmt",
         [
             "Expression ; expression: Expr",
+            "Function   ; name: Token, params: Sequence[Token], body: Sequence[Stmt]",
             "If         ; condition: Expr, then_branch: Stmt, else_branch: Stmt | None",
             "While      ; condition: Expr, body: Stmt",
             "Block      ; statements: Sequence[Stmt]",

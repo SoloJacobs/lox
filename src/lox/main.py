@@ -53,6 +53,8 @@ class Lox:
         statements = Parser(self, tokens).parse()
         if statements is None:
             return
+        if self.had_error:
+            return  # type: ignore[unreachable] # https://github.com/python/mypy/issues/17537
         self._interpreter.interpret(self, statements)
 
     def run_file(self, path: Path) -> None:

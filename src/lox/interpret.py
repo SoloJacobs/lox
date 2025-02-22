@@ -10,6 +10,7 @@ from lox.ast import (
     Call,
     Expr,
     Expression,
+    Function,
     Grouping,
     If,
     Literal,
@@ -233,6 +234,11 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
             expr.body.accept(self)
 
     @override
+    def visit_function_stmt(self, expr: Function) -> None:
+        function = LoxFunction(expr)
+        self._environment.define(expr.name.lexeme, function)
+
+    @override
     def visit_logical_expr(self, expr: Logical) -> object:
         left = expr.left.accept(self)
         match expr.operator.type_:
@@ -269,3 +275,25 @@ class Clock(LoxCallable):
     @override
     def __str__(self) -> str:
         return "<native fun>"
+
+
+class LoxFunction(LoxCallable):
+    def __init__(self, declaration: Function) -> None:
+        self._declaration = declaration
+
+    @property
+    @override
+    def arity(self) -> int:
+        return len(self._declaration.params)
+
+    @override
+    def call(self, interpreter: Interpreter, arguments: Sequence[object]) -> object:
+        environment = Environment(interpreter._globals)
+        for param, argument in zip(self._declaration.params, arguments, strict=True):
+            environment.define(param.lexeme, argument)
+        Block(self._declaration.body).accept(interpreter)
+        return None
+
+    @override
+    def __str__(self) -> str:
+        return f"<fun {self._declaration.name.lexeme}>"

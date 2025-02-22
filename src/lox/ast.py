@@ -125,6 +125,17 @@ class Expression(Stmt):
 
 
 @dataclass(frozen=True)
+class Function(Stmt):
+    name: Token
+    params: Sequence[Token]
+    body: Sequence[Stmt]
+
+    @override
+    def accept[T](self, visitor: "VisitorStmt[T]") -> T:
+        return visitor.visit_function_stmt(self)
+
+
+@dataclass(frozen=True)
 class If(Stmt):
     condition: Expr
     then_branch: Stmt
@@ -176,6 +187,8 @@ class Var(Stmt):
 class VisitorStmt[T](ABC):
     @abstractmethod
     def visit_expression_stmt(self, expr: Expression) -> T: ...
+    @abstractmethod
+    def visit_function_stmt(self, expr: Function) -> T: ...
     @abstractmethod
     def visit_if_stmt(self, expr: If) -> T: ...
     @abstractmethod

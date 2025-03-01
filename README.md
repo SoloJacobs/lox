@@ -62,8 +62,42 @@ LESS = "<"
 LESS_EQUAL = "<="
 ```
 
+# Syntax
+
+Below syntax uses ANTLR4 format.
+
+## Expressions
+
+```antlr
+expression: assignment ;
+assignment
+    : ( call DOT )? IDENTIFIER EQUAL assignment
+    | logic_or ;
+logic_or: logic_and ( OR logic_and )* ;
+logic_and: equality ( AND equality )* ;
+equality: comparison ( ( BANG_EQUAL | EQUAL_EQUAL ) comparison )* ;
+comparison: term ( ( GREATER | GREATER_EQUAL | LESS | LESS_EQUAL ) term )* ;
+term: factor ( ( PLUS | MINUS ) factor )* ;
+factor: unary ( ( SLASH | STAR ) unary )* ;
+unary
+    : ( BANG | MINUS ) unary
+    | call ;
+call: primary ( LEFT_PAREN arguments? RIGHT_PAREN | DOT IDENTIFIER )* ;
+primary
+    : TRUE
+    | FALSE
+    | NIL
+    | THIS
+    | NUMBER
+    | STRING
+    | IDENTIFIER
+    | LEFT_PAREN expression RIGHT_PAREN
+    | SUPER DOT IDENTIFIER ;
+```
+
 # Differences To Lox
 
 * Some differences in behaviour of floats.
+* C-style comma operator.
 * Files are UTF-8 encoded.
 * Scanner will discard C-style comments `/* ... */`.

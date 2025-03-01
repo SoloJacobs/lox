@@ -1,28 +1,7 @@
-from collections.abc import Sequence
-
 from lox.ast import Binary, Expression, Grouping, Literal, Variable
 from lox.parser import Parser
 from lox.scanner import Scanner, Token, TokenType
-
-
-class Reporter:
-    def __init__(self) -> None:
-        self._errors: list[tuple[int, str]] = []
-        self._parser_errors: list[tuple[Token, str]] = []
-
-    def error(self, line: int, message: str) -> None:
-        self._errors.append((line, message))
-
-    def parser_error(self, token: Token, message: str) -> None:
-        self._parser_errors.append((token, message))
-
-    @property
-    def errors(self) -> Sequence[tuple[int, str]]:
-        return self._errors
-
-    @property
-    def parser_errors(self) -> Sequence[tuple[Token, str]]:
-        return self._parser_errors
+from tests.lox.utils import Reporter
 
 
 def test_parse_associative() -> None:
@@ -160,4 +139,35 @@ def test_parse_identifier() -> None:
     assert not reporter.parser_errors
     assert expr == Variable(
         name=Token(type_=TokenType.IDENTIFIER, lexeme="a", literal="a", line=1)
+    )
+
+
+def test_parse_comma_expr() -> None:
+    # Assemble
+    lox = "1-1,2,1*3"
+    reporter = Reporter()
+    tokens = Scanner(reporter, lox).scan_tokens()
+    print(tokens)
+    assert not reporter.errors
+    parser = Parser(reporter, tokens)
+    # Act
+    expr = parser.expression()
+    # Assert
+    assert not reporter.parser_errors
+    assert expr == Binary(
+        left=Binary(
+            left=Binary(
+                left=Literal(value=1.0),
+                operator=Token(type_=TokenType.MINUS, lexeme="-", literal=None, line=1),
+                right=Literal(value=1.0),
+            ),
+            operator=Token(type_=TokenType.COMMA, lexeme=",", literal=None, line=1),
+            right=Literal(value=2.0),
+        ),
+        operator=Token(type_=TokenType.COMMA, lexeme=",", literal=None, line=1),
+        right=Binary(
+            left=Literal(value=1.0),
+            operator=Token(type_=TokenType.STAR, lexeme="*", literal=None, line=1),
+            right=Literal(value=3.0),
+        ),
     )

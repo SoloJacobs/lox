@@ -1,18 +1,5 @@
-from collections.abc import Sequence
-
 from lox.scanner import Scanner, Token, TokenType
-
-
-class Reporter:
-    def __init__(self) -> None:
-        self._errors: list[tuple[int, str]] = []
-
-    def error(self, line: int, message: str) -> None:
-        self._errors.append((line, message))
-
-    @property
-    def errors(self) -> Sequence[tuple[int, str]]:
-        return self._errors
+from tests.lox.utils import Reporter
 
 
 def test_scan_tokens() -> None:

@@ -63,9 +63,11 @@ class Interpreter(VisitorExpr[object], VisitorStmt[None]):
 
     @override
     def visit_binary_expr(self, expr: Binary) -> object:
-        right = expr.right.accept(self)
         left = expr.left.accept(self)
+        right = expr.right.accept(self)
         match expr.operator.type_:
+            case TokenType.COMMA:
+                return right
             case TokenType.PLUS:
                 if isinstance(right, float) and isinstance(left, float):
                     return left + right

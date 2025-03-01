@@ -38,7 +38,15 @@ class Parser:
         self._current = 0
 
     def expression(self) -> Expr:
-        return self.assignment()
+        return self.comma()
+
+    def comma(self) -> Expr:
+        expr = self.assignment()
+        while self.peek() == TokenType.COMMA:
+            comma = self.consume()
+            right = self.assignment()
+            expr = Binary(expr, comma, right)
+        return expr
 
     def assignment(self) -> Expr:
         expr = self.or_()

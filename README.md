@@ -69,7 +69,8 @@ Below syntax uses ANTLR4 format.
 ## Expressions
 
 ```antlr
-expression: assignment ;
+expression: comma ;
+comma: assignment ( COMMA assignment )* ;
 assignment
     : ( call DOT )? IDENTIFIER EQUAL assignment
     | logic_or ;
